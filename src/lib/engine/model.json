@@ -1,0 +1,171 @@
+{
+  "_comment": "OTOMATİK ÜRETİLDİ — elle düzenlemeyin. Kaynak: dataset/avocado_ripeness_dataset.csv. Yeniden üretmek için: npm run build:model. Fotoğraf uzayı eşikleri için engine/constants.ts'e bakın.",
+  "source": "dataset/avocado_ripeness_dataset.csv",
+  "rowCount": 250,
+  "classes": [
+    "hard",
+    "pre-conditioned",
+    "breaking",
+    "firm-ripe",
+    "ripe"
+  ],
+  "categories": [
+    "dark green",
+    "green",
+    "purple",
+    "black"
+  ],
+  "categoryCounts": {
+    "dark green": {
+      "hard": 50,
+      "pre-conditioned": 0,
+      "breaking": 0,
+      "firm-ripe": 0,
+      "ripe": 0
+    },
+    "green": {
+      "hard": 0,
+      "pre-conditioned": 50,
+      "breaking": 0,
+      "firm-ripe": 0,
+      "ripe": 0
+    },
+    "purple": {
+      "hard": 0,
+      "pre-conditioned": 0,
+      "breaking": 50,
+      "firm-ripe": 25,
+      "ripe": 0
+    },
+    "black": {
+      "hard": 0,
+      "pre-conditioned": 0,
+      "breaking": 0,
+      "firm-ripe": 25,
+      "ripe": 50
+    }
+  },
+  "categoryPriors": {
+    "dark green": {
+      "hard": 1,
+      "pre-conditioned": 0,
+      "breaking": 0,
+      "firm-ripe": 0,
+      "ripe": 0
+    },
+    "green": {
+      "hard": 0,
+      "pre-conditioned": 1,
+      "breaking": 0,
+      "firm-ripe": 0,
+      "ripe": 0
+    },
+    "purple": {
+      "hard": 0,
+      "pre-conditioned": 0,
+      "breaking": 0.667,
+      "firm-ripe": 0.333,
+      "ripe": 0
+    },
+    "black": {
+      "hard": 0,
+      "pre-conditioned": 0,
+      "breaking": 0,
+      "firm-ripe": 0.333,
+      "ripe": 0.667
+    }
+  },
+  "categoryOrder": {
+    "dark green": [
+      "hard"
+    ],
+    "green": [
+      "pre-conditioned"
+    ],
+    "purple": [
+      "firm-ripe",
+      "breaking"
+    ],
+    "black": [
+      "ripe",
+      "firm-ripe"
+    ]
+  },
+  "classStats": {
+    "hard": {
+      "n": 50,
+      "saturation": {
+        "mean": 85.04,
+        "sd": 8.424,
+        "min": 70,
+        "max": 99
+      },
+      "brightness": {
+        "mean": 55.08,
+        "sd": 9.664,
+        "min": 40,
+        "max": 69
+      }
+    },
+    "pre-conditioned": {
+      "n": 50,
+      "saturation": {
+        "mean": 73.98,
+        "sd": 8.123,
+        "min": 60,
+        "max": 89
+      },
+      "brightness": {
+        "mean": 69.04,
+        "sd": 7.919,
+        "min": 50,
+        "max": 78
+      }
+    },
+    "breaking": {
+      "n": 50,
+      "saturation": {
+        "mean": 65.02,
+        "sd": 7.944,
+        "min": 50,
+        "max": 79
+      },
+      "brightness": {
+        "mean": 44.62,
+        "sd": 9.885,
+        "min": 30,
+        "max": 59
+      }
+    },
+    "firm-ripe": {
+      "n": 50,
+      "saturation": {
+        "mean": 53.72,
+        "sd": 13.551,
+        "min": 31,
+        "max": 79
+      },
+      "brightness": {
+        "mean": 31.9,
+        "sd": 14.988,
+        "min": 10,
+        "max": 57
+      }
+    },
+    "ripe": {
+      "n": 50,
+      "saturation": {
+        "mean": 44.02,
+        "sd": 8.517,
+        "min": 30,
+        "max": 59
+      },
+      "brightness": {
+        "mean": 24.72,
+        "sd": 8.879,
+        "min": 10,
+        "max": 39
+      }
+    }
+  }
+}

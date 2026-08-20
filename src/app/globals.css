@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/*
+ * Palet: assets/Screenshot 2026-08-20 204114.png
+ * 7 marka rengi + paletten türetilmiş 3 nötr yüzey rengi.
+ * Kullanım kuralı:
+ *   metin      → av-skin
+ *   kart zemin → av-fresh / av-mist
+ *   birincil CTA → av-ready (üstüne av-skin metin; asla beyaz değil)
+ */
+@theme {
+  --color-av-unripe: #d4e157; /* HAM */
+  --color-av-medium: #a4c639; /* YARIM OLGUN */
+  --color-av-ripe: #558b2f; /* TAM OLGUN */
+  --color-av-ready: #dce775; /* HAZIR — birincil aksan */
+  --color-av-natural: #689f38; /* DOĞAL */
+  --color-av-fresh: #c5e1a5; /* TAZE — yüzey */
+  --color-av-skin: #2c3e50; /* KABUK — metin & koyu zemin */
+
+  /* Paletten türetilmiş nötrler */
+  --color-av-cream: #fbfdf6;
+  --color-av-mist: #eef5e3;
+  --color-av-line: #d8e6c4;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  html {
+    /* iOS'ta yatay kayma ve otomatik font büyütmesini engelle */
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-av-cream);
+    color: var(--color-av-skin);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    /* Kamera ekranı çentikli telefonlarda tam ekran çalışsın */
+    min-height: 100svh;
+  }
+
+  /* Sadece klavye ile gezenlere görünür odak halkası */
+  :focus-visible {
+    outline: 3px solid var(--color-av-ripe);
+    outline-offset: 2px;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer utilities {
+  /* Çentik / home indicator güvenli alanları */
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* Mobilde içerik genişliği — her ekranda aynı ölçü */
+  .shell {
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
