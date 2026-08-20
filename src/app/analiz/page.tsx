@@ -112,7 +112,7 @@ function Result({
         <button
           type="button"
           onClick={onRetry}
-          className="w-full rounded-pill bg-av-ready px-6 py-3.5 text-base font-semibold text-av-skin shadow-[0_5px_0_0_#A4C639] transition active:translate-y-[2px] active:shadow-[0_3px_0_0_#A4C639]"
+          className="w-full rounded-pill bg-av-ready px-6 py-3.5 text-base font-semibold text-av-skin shadow-[0_5px_0_0_#A4C639] transition active:translate-y-0.5 active:shadow-[0_3px_0_0_#A4C639]"
         >
           Tekrar Çek
         </button>

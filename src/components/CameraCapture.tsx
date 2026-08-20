@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GuideOverlay } from "./GuideOverlay";
-import { captureVideoFrame, decodeBlob, toPreviewUrl } from "@/lib/engine/decode";
+import { captureVideoFrame, decodeBlob, decodeSource, toPreviewUrl } from "@/lib/engine/decode";
 import { exposureStats, computeSharpness } from "@/lib/engine/features";
 import { segment } from "@/lib/engine/segment";
 import {
@@ -34,6 +34,7 @@ export function CameraCapture({
   const [status, setStatus] = useState<Status>("starting");
   const [hint, setHint] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const stop = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -117,13 +118,20 @@ export function CameraCapture({
 
   const pickFile = async (file: File) => {
     setBusy(true);
+    setFileError(null);
     try {
       const frame = await decodeBlob(file);
-      const bitmap = await createImageBitmap(file);
-      const preview = toPreviewUrl(bitmap, bitmap.width, bitmap.height);
-      bitmap.close();
-      stop();
-      onCapture(frame, preview);
+      const decoded = await decodeSource(file);
+      try {
+        const preview = toPreviewUrl(decoded.source, decoded.width, decoded.height);
+        stop();
+        onCapture(frame, preview);
+      } finally {
+        decoded.release();
+      }
+    } catch (err) {
+      // Sessiz başarısızlık en kötü davranış: kullanıcı ne olduğunu anlamaz.
+      setFileError(err instanceof Error ? err.message : "Fotoğraf açılamadı.");
     } finally {
       setBusy(false);
     }
@@ -197,6 +205,12 @@ export function CameraCapture({
           />
           Galeriden fotoğraf seç
         </label>
+
+        {fileError ? (
+          <p className="rounded-card border border-av-unripe bg-av-unripe/15 px-3 py-2 text-center text-[12px] leading-snug">
+            {fileError}
+          </p>
+        ) : null}
 
         {onCancel ? (
           <button

@@ -63,7 +63,7 @@ export default function HomePage() {
         <div className="mt-8">
           <Link
             href="/analiz"
-            className="flex w-full items-center justify-center gap-2 rounded-pill bg-av-ready px-6 py-4 text-lg font-semibold text-av-skin shadow-[0_6px_0_0_#A4C639] transition active:translate-y-[3px] active:shadow-[0_3px_0_0_#A4C639]"
+            className="flex w-full items-center justify-center gap-2 rounded-pill bg-av-ready px-6 py-4 text-lg font-semibold text-av-skin shadow-[0_6px_0_0_#A4C639] transition active:translate-y-0.75 active:shadow-[0_3px_0_0_#A4C639]"
           >
             <CameraIcon className="h-5 w-5" />
             Kamerayı Aç

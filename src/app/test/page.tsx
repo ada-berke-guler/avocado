@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DebugPanel } from "@/components/DebugPanel";
 import { analyze } from "@/lib/engine";
-import { decodeBlob, toPreviewUrl } from "@/lib/engine/decode";
+import { decodeSource, toPreviewUrl } from "@/lib/engine/decode";
+import { ANALYSIS_MAX_EDGE } from "@/lib/engine/constants";
 import { RIPENESS, RIPENESS_ORDER } from "@/lib/ripeness";
 import type { AnalysisResult, RipenessClass } from "@/lib/types";
 
@@ -34,6 +35,7 @@ export default function TestPage() {
   const [labels, setLabels] = useState<Record<string, RipenessClass>>({});
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -61,25 +63,37 @@ export default function TestPage() {
 
   const addFiles = useCallback(async (files: FileList) => {
     setBusy(true);
-    try {
-      for (const file of Array.from(files)) {
-        // Dosya adı + boyut: aynı fotoğrafı tekrar yüklediğinde etiketi hatırlansın.
-        const id = `${file.name}:${file.size}`;
-        const frame = await decodeBlob(file);
-        const bitmap = await createImageBitmap(file);
-        const previewUrl = toPreviewUrl(bitmap, bitmap.width, bitmap.height, {
-          maxEdge: 320,
-        });
-        bitmap.close();
-        const result = analyze(frame);
-        setItems((prev) => [
-          ...prev.filter((i) => i.id !== id),
-          { id, name: file.name, previewUrl, result },
-        ]);
+    setErrors([]);
+    const failed: string[] = [];
+
+    for (const file of Array.from(files)) {
+      // Dosya adı + boyut: aynı fotoğrafı tekrar yüklediğinde etiketi hatırlansın.
+      const id = `${file.name}:${file.size}`;
+      // Her dosya kendi try'ında: bir HEIC dosyası tüm partiyi düşürmemeli.
+      try {
+        const decoded = await decodeSource(file);
+        try {
+          const frame = decodeToFrame(decoded);
+          const previewUrl = toPreviewUrl(decoded.source, decoded.width, decoded.height, {
+            maxEdge: 320,
+          });
+          const result = analyze(frame);
+          setItems((prev) => [
+            ...prev.filter((i) => i.id !== id),
+            { id, name: file.name, previewUrl, result },
+          ]);
+        } finally {
+          decoded.release();
+        }
+      } catch (err) {
+        failed.push(
+          `${file.name}: ${err instanceof Error ? err.message : "okunamadı"}`,
+        );
       }
-    } finally {
-      setBusy(false);
     }
+
+    setErrors(failed);
+    setBusy(false);
   }, []);
 
   const stats = useMemo(() => summarize(items, labels), [items, labels]);
@@ -175,6 +189,14 @@ export default function TestPage() {
         ) : null}
       </div>
 
+      {errors.length > 0 ? (
+        <ul className="mt-4 space-y-1 rounded-card border border-av-unripe bg-av-unripe/15 p-3 text-[12px]">
+          {errors.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+      ) : null}
+
       {items.length > 0 ? (
         <Summary stats={stats} total={items.length} />
       ) : (
@@ -265,6 +287,24 @@ export default function TestPage() {
       </ul>
     </main>
   );
+}
+
+/** Çözülmüş kaynaktan analiz karesi üretir — dosya ikinci kez çözülmez. */
+function decodeToFrame(decoded: {
+  source: CanvasImageSource;
+  width: number;
+  height: number;
+}): ImageData {
+  const canvas = document.createElement("canvas");
+  const scale = Math.min(1, ANALYSIS_MAX_EDGE / Math.max(decoded.width, decoded.height));
+  canvas.width = Math.max(1, Math.round(decoded.width * scale));
+  canvas.height = Math.max(1, Math.round(decoded.height * scale));
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Bu tarayıcıda canvas desteklenmiyor.");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(decoded.source, 0, 0, canvas.width, canvas.height);
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 interface Stats {

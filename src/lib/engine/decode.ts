@@ -21,17 +21,75 @@ export interface DecodeOptions {
   aspect?: number;
 }
 
+/**
+ * Çözülmüş görüntü kaynağı. Aynı dosyadan hem ImageData hem önizleme üretmek
+ * gerektiğinde kullanılır — dosyayı iki kez çözmemek için.
+ * İş bitince `release()` çağrılmalı.
+ */
+export interface DecodedSource {
+  source: CanvasImageSource;
+  width: number;
+  height: number;
+  release: () => void;
+}
+
+/**
+ * Dosya/Blob → çizilebilir kaynak. EXIF yönü uygulanır.
+ *
+ * ÇAĞIRANIN DİKKATİNE: Bu fonksiyon hata fırlatabilir (desteklenmeyen format —
+ * en sık iPhone'un HEIC/HEIF dosyaları). Çağıran tarafın hatayı yakalayıp
+ * kullanıcıya göstermesi gerekir; sessizce yutmak "hiçbir şey olmuyor" demektir.
+ */
+export async function decodeSource(blob: Blob): Promise<DecodedSource> {
+  // Tercih edilen yol: EXIF yönünü tarayıcı uygular.
+  if (typeof createImageBitmap === "function") {
+    try {
+      const bitmap = await createImageBitmap(blob, { imageOrientation: "from-image" });
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        release: () => bitmap.close(),
+      };
+    } catch {
+      // Seçenekli çağrıyı desteklemeyen veya bu formatı çözemeyen tarayıcı — alta düş.
+    }
+  }
+
+  // <img> yolu: tarayıcılar EXIF yönünü varsayılan olarak zaten uygular ve
+  // createImageBitmap'in çözemediği bazı formatları buradan çözebilir.
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = url;
+  try {
+    await img.decode();
+  } catch {
+    URL.revokeObjectURL(url);
+    throw new Error(
+      "Bu görsel biçimi tarayıcıda açılamadı. iPhone'dan geliyorsa HEIC olabilir — JPEG veya PNG olarak dışa aktarıp tekrar dene.",
+    );
+  }
+  return {
+    source: img,
+    width: img.naturalWidth,
+    height: img.naturalHeight,
+    // URL'i çizim bitene kadar canlı tutuyoruz; erken revoke bazı tarayıcılarda
+    // boş canvas üretiyor.
+    release: () => URL.revokeObjectURL(url),
+  };
+}
+
 /** Dosya/Blob → ImageData. EXIF yönü uygulanır, uzun kenar maxEdge'e küçültülür. */
 export async function decodeBlob(
   blob: Blob,
   options: DecodeOptions = {},
 ): Promise<ImageData> {
-  const bitmap = await toBitmap(blob);
+  const decoded = await decodeSource(blob);
   try {
-    return toImageData(bitmap, bitmap.width, bitmap.height, options);
+    return toImageData(decoded.source, decoded.width, decoded.height, options);
   } finally {
-    // Bellekteki kopyayı hemen bırak — tek kullanımlık uygulama.
-    if ("close" in bitmap && typeof bitmap.close === "function") bitmap.close();
+    decoded.release();
   }
 }
 
@@ -55,29 +113,6 @@ export function toPreviewUrl(
 ): string {
   const { canvas } = paint(source, width, height, { maxEdge: 720, ...options });
   return canvas.toDataURL("image/jpeg", 0.82);
-}
-
-async function toBitmap(blob: Blob): Promise<ImageBitmap | HTMLImageElement> {
-  // Tercih edilen yol: EXIF yönünü tarayıcı uygular.
-  if (typeof createImageBitmap === "function") {
-    try {
-      return await createImageBitmap(blob, { imageOrientation: "from-image" });
-    } catch {
-      // Safari'nin eski sürümleri seçenekli çağrıyı desteklemez — alta düş.
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-  try {
-    const img = new Image();
-    img.decoding = "async";
-    // <img> için tarayıcılar EXIF yönünü zaten varsayılan olarak uygular.
-    img.src = url;
-    await img.decode();
-    return img;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
 }
 
 function toImageData(
