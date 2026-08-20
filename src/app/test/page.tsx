@@ -61,12 +61,12 @@ export default function TestPage() {
     });
   }, []);
 
-  const addFiles = useCallback(async (files: FileList) => {
+  const addFiles = useCallback(async (files: File[]) => {
     setBusy(true);
     setErrors([]);
     const failed: string[] = [];
 
-    for (const file of Array.from(files)) {
+    for (const file of files) {
       // Dosya adı + boyut: aynı fotoğrafı tekrar yüklediğinde etiketi hatırlansın.
       const id = `${file.name}:${file.size}`;
       // Her dosya kendi try'ında: bir HEIC dosyası tüm partiyi düşürmemeli.
@@ -158,9 +158,14 @@ export default function TestPage() {
             multiple
             className="sr-only"
             onChange={(e) => {
-              const files = e.target.files;
+              // DİKKAT: `e.target.files` input'a bağlı CANLI bir FileList.
+              // `value = ""` ile input sıfırlanınca elindeki referans da boşalır.
+              // Bu yüzden sıfırlamadan ÖNCE gerçek bir diziye kopyalıyoruz —
+              // aksi halde liste sessizce boş gelir ve hiçbir şey yüklenmez.
+              const files = Array.from(e.target.files ?? []);
+              // Aynı dosya tekrar seçilebilsin diye input sıfırlanır.
               e.target.value = "";
-              if (files?.length) void addFiles(files);
+              if (files.length > 0) void addFiles(files);
             }}
           />
           {busy ? "İşleniyor…" : "Fotoğraf ekle"}
