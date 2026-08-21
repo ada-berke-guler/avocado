@@ -376,7 +376,7 @@ function Summary({ stats, total }: { stats: Stats; total: number }) {
 
       {stats.labeled > 0 ? (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[420px] border-collapse text-[11px]">
+          <table className="w-full min-w-105 border-collapse text-[11px]">
             <caption className="mb-1.5 text-left text-[10px] tracking-wide text-av-skin/45 uppercase">
               Karışıklık matrisi (satır: gerçek, sütun: tahmin)
             </caption>

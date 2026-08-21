@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AvocadoMark } from "@/components/AvocadoMark";
+import { RipenessIntro } from "@/components/RipenessIntro";
 import { RIPENESS_ORDER } from "@/lib/ripeness";
 
 const STEPS = [
@@ -23,6 +24,9 @@ const STEPS = [
 export default function HomePage() {
   return (
     <main className="flex min-h-svh flex-col">
+      {/* Her yüklemede oynayan açılış animasyonu; tek dokunuşla atlanır. */}
+      <RipenessIntro />
+
       <div className="shell pt-safe flex flex-1 flex-col">
         {/* marka */}
         <header className="flex items-center gap-2 py-2">

@@ -76,6 +76,44 @@
   }
 }
 
+/* Açılış animasyonu (RipenessIntro) */
+@keyframes intro-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.07);
+  }
+  70% {
+    transform: scale(0.985);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  /* Son evrede "yerine oturma" hissi veren tek seferlik yaylanma */
+  .animate-intro-pop {
+    animation: intro-pop 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .animate-intro-rise {
+    animation: intro-rise 320ms ease-out both;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
