@@ -10,7 +10,10 @@ import { RIPENESS_ORDER } from "@/lib/ripeness";
  * (olgun/hazır) durup sahneyi kullanıcıya bırakır. Amaç: uygulamanın neyi
  * ölçtüğünü tek bakışta anlatmak.
  *
- * Görseller assets/animasyon.png'den kırpıldı → public/onboarding/stage-N.png.
+ * Görseller assets/animasyon.png'den kırpıldı → public/onboarding/stage-N.webp.
+ * Kaynak evre başına ~141px; sahne 176px CSS (2x ekranda 352px) olduğu için
+ * tarayıcıya gerdirmek yerine lanczos ile 2.5x büyütülüp WebP olarak kaydedildi
+ * (palete indirgenmiş PNG'de dither beneği görünüyordu).
  * Beşi de aynı taban çizgisinde kırpıldığı için üst üste bindirildiğinde
  * avokado yerinde duruyor, sadece rengi değişiyor — geçiş "aynı avokado
  * olgunlaşıyor" hissi veriyor.
@@ -28,9 +31,14 @@ const FINAL_HOLD_MS = 950;
 /** Perdenin açılma süresi; globals.css'teki geçiş süreleriyle aynı ailede. */
 const FADE_MS = 420;
 
+/** Kırpılan karelerin genişliği evreye göre değişiyor; yükseklik hepsinde aynı. */
+const FRAME_W: Record<number, number> = { 1: 393, 2: 390, 3: 360, 4: 370, 5: 358 };
+const FRAME_H = 353;
+
 const STAGES = RIPENESS_ORDER.map((info) => ({
   ...info,
-  src: `/onboarding/stage-${info.stage}.png`,
+  src: `/onboarding/stage-${info.stage}.webp`,
+  width: FRAME_W[info.stage],
 }));
 
 type Phase = "run" | "settle" | "leave" | "done";
@@ -133,8 +141,8 @@ export function RipenessIntro() {
               src={s.src}
               alt=""
               aria-hidden
-              width={157}
-              height={141}
+              width={s.width}
+              height={FRAME_H}
               /* Hepsi baştan DOM'da: geçiş anında yükleme beklemesin, kare atlamasın. */
               className={`absolute h-full w-auto object-contain transition-[opacity,transform] duration-300 ease-out ${
                 active

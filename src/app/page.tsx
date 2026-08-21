@@ -47,11 +47,11 @@ export default function HomePage() {
                 Dekoratif: anlamı h1 taşıyor, o yüzden alt boş.
                 eslint-disable-next-line @next/next/no-img-element -- statik, ölçüsü sabit */}
             <img
-              src="/avokado.png"
+              src="/avokado.webp"
               alt=""
               aria-hidden
-              width={281}
-              height={385}
+              width={380}
+              height={520}
               fetchPriority="high"
               className="h-40 w-auto"
             />
