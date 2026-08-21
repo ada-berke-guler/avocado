@@ -43,11 +43,17 @@ export default function HomePage() {
               aria-hidden
               className="absolute inset-0 -z-10 translate-y-3 scale-110 rounded-full bg-av-fresh/60 blur-2xl"
             />
-            <AvocadoMark
-              className="h-40 w-auto drop-shadow-sm"
-              color="#558B2F"
-              stemColor="#689F38"
-              title="Avokado"
+            {/* assets/logo.png'den kırpıldı (zemin + köşe yaprakları temizlendi).
+                Dekoratif: anlamı h1 taşıyor, o yüzden alt boş.
+                eslint-disable-next-line @next/next/no-img-element -- statik, ölçüsü sabit */}
+            <img
+              src="/avokado.png"
+              alt=""
+              aria-hidden
+              width={281}
+              height={385}
+              fetchPriority="high"
+              className="h-40 w-auto"
             />
           </div>
 
